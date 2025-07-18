@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande App - Administration</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Page de connexion -->
+        <div id="loginPage" class="login-page">
+            <div class="login-container">
+                <div class="login-header">
+                    <h1><i class="fas fa-lock"></i> Administration</h1>
+                    <p>Connectez-vous pour gérer les commandes</p>
+                </div>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i> Nom d'utilisateur
+                        </label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-key"></i> Mot de passe
+                        </label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard admin -->
+        <div id="dashboardPage" class="dashboard-page" style="display: none;">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard Admin</h1>
+                </div>
+                <div class="header-right">
+                    <span id="adminInfo"></span>
+                    <button onclick="logout()" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistiques -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalCommandes">0</h3>
+                        <p>Total commandes</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="enAttente">0</h3>
+                        <p>En attente</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon shipped">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="expediees">0</h3>
+                        <p>Expédiées</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon today">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="aujourdhui">0</h3>
+                        <p>Aujourd'hui</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-container">
+                <button onclick="refreshCommandes()" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
+                <button onclick="exportCommandes()" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Exporter
+                </button>
+                <button onclick="testEmail()" class="btn btn-secondary">
+                    <i class="fas fa-envelope"></i> Test Email
+                </button>
+            </div>
+
+            <!-- Tableau des commandes -->
+            <div class="table-container">
+                <h2><i class="fas fa-list"></i> Liste des commandes</h2>
+                
+                <div class="table-filters">
+                    <select id="statusFilter" onchange="filterCommandes()">
+                        <option value="">Tous les statuts</option>
+                        <option value="en attente">En attente</option>
+                        <option value="expédiée">Expédiée</option>
+                    </select>
+                    
+                    <input type="text" id="searchInput" placeholder="Rechercher..." onkeyup="filterCommandes()">
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="commandesTable" class="commandes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Téléphone</th>
+                                <th>Produit</th>
+                                <th>Quantité</th>
+                                <th>Prix</th>
+                                <th>Statut</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commandesTableBody">
+                            <!-- Les commandes seront chargées ici -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de détails de commande -->
+        <div id="commandeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-eye"></i> Détails de la commande</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body" id="commandeModalBody">
+                    <!-- Les détails seront chargés ici -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="closeCommandeModal()">Fermer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmation de suppression -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header error">
+                    <h3><i class="fas fa-trash"></i> Confirmer la suppression</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer cette commande ?</p>
+                    <p>Cette action est irréversible.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html> 

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: commande-app-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: commande_app
+      MYSQL_USER: commande_user
+      MYSQL_PASSWORD: commande_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - commande-network
+
+  # Application Node.js
+  app:
+    build: .
+    container_name: commande-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=commande_user
+      - DB_PASSWORD=commande_password
+      - DB_NAME=commande_app
+      - DB_PORT=3306
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - JWT_SECRET=your_super_secret_jwt_key_change_in_production
+      - PORT=3000
+      - NODE_ENV=production
+    depends_on:
+      - mysql
+    networks:
+      - commande-network
+
+volumes:
+  mysql_data:
+
+networks:
+  commande-network:
+    driver: bridge 
