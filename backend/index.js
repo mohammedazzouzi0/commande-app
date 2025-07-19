@@ -7,6 +7,7 @@ require('dotenv').config();
 const { initializeDatabase, testConnection } = require('./db');
 const commandesRoutes = require('./routes/commandes');
 const adminRoutes = require('./routes/admin');
+const paiementsRoutes = require('./routes/paiements');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 // Routes API
 app.use('/api/commandes', commandesRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/paiements', paiementsRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
@@ -56,6 +58,11 @@ app.get('/', (req, res) => {
 // Route pour servir la page admin
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+});
+
+// Route pour servir la page de paiement
+app.get('/paiement', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/paiement.html'));
 });
 
 // Gestion des erreurs 404

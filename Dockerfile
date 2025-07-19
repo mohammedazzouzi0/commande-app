@@ -1,16 +1,16 @@
 # Image de base Node.js
-FROM node:16-alpine
+FROM node:18
 
 # Définir le répertoire de travail
 WORKDIR /app
 
 # Copier les fichiers de dépendances
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Installer les dépendances
+# Installer les dépendances de production
 RUN npm ci --only=production
 
-# Copier le code source
+# Copier le reste du code source
 COPY . .
 
 # Exposer le port
